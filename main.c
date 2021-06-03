@@ -1,53 +1,37 @@
-#include <mpi.h>
-#define _XOPEN_SOURCE
-#include <unistd.h>
+#include "mpi.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <time.h>
 
+int clockLamport = 0;
+int stop = 0;
 
+pthread_mutex_t	mutexClock = PTHREAD_MUTEX_INITIALIZER;
 
-char *stro="aa5UYq6trT5u.";
+pthread_mutex_t mutexCond = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
-
-int main(int argc, char **argv)
+struct data
 {
-    MPI_Init(&argc, &argv);
+    int rank; // my own rank
+    int size; // how masters
+    int myWeight; // my own weight
+};
 
-    int size,rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-    
-    char cmp[5]={0};
+int main( int argc, char **argv )
+{
+	int rank, size;
+	char processor_name[MPI_MAX_PROCESSOR_NAME];
+	int namelen;
 
-    char salt[3]={0};
-    salt[0]=stro[0];
-    salt[1]=stro[1];
+	MPI_Init( &argc, &argv );
+	
+	MPI_Comm_rank( MPI_COMM_WORLD, &rank );
+	MPI_Comm_size( MPI_COMM_WORLD, &size );
+	MPI_Get_processor_name(processor_name,&namelen);
+	printf( "Jestem %d z %d na %s\n", rank, size, processor_name );
 
-    /* Ten fragment kodu nalezy _jakos_ zrównoleglić */
-    /* pewnie będzie potrzebna jakaś pętla... */
-    int i,j,k,l;
-    for (i='a';i<='z';i++){
-	    cmp[0]=i;
-	    for (j='a';j<='z';j++){
-		    cmp[1]=j;
-		    for (k='a';k<='z';k++){
-			    cmp[2]=k;
-			    for (l='a';l<='z';l++){
-				    cmp[3]=l;
-
-    				    char * x=crypt(cmp, salt);
-
-    					if ((strcmp(x,stro))==0)
-    					{
-            					/* w docelowej wersji przeslac odgadnięte hasło masterowi */
-	    					printf("Udalo sie: %s %s %s\n", cmp, x, stro);
-           					MPI_Abort(MPI_COMM_WORLD, 0);
-	    					exit(0);
-    					}
-			    }
-		    }
-	    }
-    }
-
-    MPI_Finalize();
+	MPI_Finalize();
 }
