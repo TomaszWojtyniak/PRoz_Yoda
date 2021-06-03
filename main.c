@@ -1,37 +1,126 @@
-#include "mpi.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include "main.h"
+#include "watek_komunikacyjny.h"
+#include "watek_glowny.h"
+#include "monitor.h"
+/* wątki */
 #include <pthread.h>
-#include <unistd.h>
-#include <time.h>
 
-int clockLamport = 0;
-int stop = 0;
+/* sem_init sem_destroy sem_post sem_wait */
+//#include <semaphore.h>
+/* flagi dla open */
+//#include <fcntl.h>
 
-pthread_mutex_t	mutexClock = PTHREAD_MUTEX_INITIALIZER;
+state_t stan=InRun;
+volatile char end = FALSE;
+int size,rank;
+MPI_Datatype MPI_PAKIET_T;
+pthread_t threadKom, threadMon;
 
-pthread_mutex_t mutexCond = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
 
-struct data
+void check_thread_support(int provided)
 {
-    int rank; // my own rank
-    int size; // how masters
-    int myWeight; // my own weight
-};
-
-int main( int argc, char **argv )
-{
-	int rank, size;
-	char processor_name[MPI_MAX_PROCESSOR_NAME];
-	int namelen;
-
-	MPI_Init( &argc, &argv );
-	
-	MPI_Comm_rank( MPI_COMM_WORLD, &rank );
-	MPI_Comm_size( MPI_COMM_WORLD, &size );
-	MPI_Get_processor_name(processor_name,&namelen);
-	printf( "Jestem %d z %d na %s\n", rank, size, processor_name );
-
-	MPI_Finalize();
+    printf("THREAD SUPPORT: %d\n", provided);
+    switch (provided) {
+        case MPI_THREAD_SINGLE: 
+            printf("Brak wsparcia dla wątków, kończę\n");
+            /* Nie ma co, trzeba wychodzić */
+	    fprintf(stderr, "Brak wystarczającego wsparcia dla wątków - wychodzę!\n");
+	    MPI_Finalize();
+	    exit(-1);
+	    break;
+        case MPI_THREAD_FUNNELED: 
+            printf("tylko te wątki, ktore wykonaly mpi_init_thread mogą wykonać wołania do biblioteki mpi\n");
+	    break;
+        case MPI_THREAD_SERIALIZED: 
+            /* Potrzebne zamki wokół wywołań biblioteki MPI */
+            printf("tylko jeden watek naraz może wykonać wołania do biblioteki MPI\n");
+	    break;
+        case MPI_THREAD_MULTIPLE: printf("Pełne wsparcie dla wątków\n");
+	    break;
+        default: printf("Nikt nic nie wie\n");
+    }
 }
+
+/* srprawdza, czy są wątki, tworzy typ MPI_PAKIET_T
+*/
+void inicjuj(int *argc, char ***argv)
+{
+    int provided;
+    MPI_Init_thread(argc, argv,MPI_THREAD_MULTIPLE, &provided);
+    check_thread_support(provided);
+
+
+    /* Stworzenie typu */
+    /* Poniższe (aż do MPI_Type_commit) potrzebne tylko, jeżeli
+       brzydzimy się czymś w rodzaju MPI_Send(&typ, sizeof(pakiet_t), MPI_BYTE....
+    */
+    /* sklejone z stackoverflow */
+    const int nitems=3; /* bo packet_t ma trzy pola */
+    int       blocklengths[3] = {1,1,1};
+    MPI_Datatype typy[3] = {MPI_INT, MPI_INT, MPI_INT};
+
+    MPI_Aint     offsets[3]; 
+    offsets[0] = offsetof(packet_t, ts);
+    offsets[1] = offsetof(packet_t, src);
+    offsets[2] = offsetof(packet_t, data);
+
+    MPI_Type_create_struct(nitems, blocklengths, offsets, typy, &MPI_PAKIET_T);
+    MPI_Type_commit(&MPI_PAKIET_T);
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    srand(rank);
+
+    pthread_create( &threadKom, NULL, startKomWatek , 0);
+    if (rank==0) {
+	pthread_create( &threadMon, NULL, startMonitor, 0);
+    }
+    debug("jestem");
+}
+
+/* usunięcie zamkków, czeka, aż zakończy się drugi wątek, zwalnia przydzielony typ MPI_PAKIET_T
+   wywoływane w funkcji main przed końcem
+*/
+void finalizuj()
+{
+    pthread_mutex_destroy( &stateMut);
+    /* Czekamy, aż wątek potomny się zakończy */
+    println("czekam na wątek \"komunikacyjny\"\n" );
+    pthread_join(threadKom,NULL);
+    if (rank==0) pthread_join(threadMon,NULL);
+    MPI_Type_free(&MPI_PAKIET_T);
+    MPI_Finalize();
+}
+
+
+void sendPacket(packet_t *pkt, int destination, int tag)
+{
+    int freepkt=0;
+    if (pkt==0) { pkt = malloc(sizeof(packet_t)); freepkt=1;}
+    pkt->src = rank;
+    MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
+    if (freepkt) free(pkt);
+}
+
+void changeState( state_t newState )
+{
+    pthread_mutex_lock( &stateMut );
+    if (stan==InFinish) { 
+	pthread_mutex_unlock( &stateMut );
+        return;
+    }
+    stan = newState;
+    pthread_mutex_unlock( &stateMut );
+}
+
+int main(int argc, char **argv)
+{
+    /* Tworzenie wątków, inicjalizacja itp */
+    inicjuj(&argc,&argv); // tworzy wątek komunikacyjny w "watek_komunikacyjny.c"
+    mainLoop();          // w pliku "watek_glowny.c"
+
+    finalizuj();
+    return 0;
+}
+
