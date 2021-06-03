@@ -4,20 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* 4 literowe
-aa5UYq6trT5u.
-bahAZ9Hk7SCf6
-ddoo3WocSpthU
-jkmD2RlhoMyuA
-zzm4NUIIb7VIk
-kkv864igyJC9o
 
-5 literowe
-aaSPfLTmjh3fU
-
-6 literowe
-aaLTdQr7DyHuU 
-*/
 
 char *stro="aa5UYq6trT5u.";
 
