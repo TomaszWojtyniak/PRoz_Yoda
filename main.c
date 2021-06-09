@@ -1,126 +1,71 @@
-#include "main.h"
-#include "watek_komunikacyjny.h"
-#include "watek_glowny.h"
-#include "monitor.h"
-/* wątki */
+#include "mpi.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <time.h>
 
-/* sem_init sem_destroy sem_post sem_wait */
-//#include <semaphore.h>
-/* flagi dla open */
-//#include <fcntl.h>
+int clockLamport = 0;
+int stop = 0;
 
-state_t stan=InRun;
-volatile char end = FALSE;
-int size,rank;
-MPI_Datatype MPI_PAKIET_T;
-pthread_t threadKom, threadMon;
 
-pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t	mutexClock = PTHREAD_MUTEX_INITIALIZER;
 
-void check_thread_support(int provided)
+pthread_mutex_t mutexCond = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+
+struct data
 {
-    printf("THREAD SUPPORT: %d\n", provided);
-    switch (provided) {
-        case MPI_THREAD_SINGLE: 
-            printf("Brak wsparcia dla wątków, kończę\n");
-            /* Nie ma co, trzeba wychodzić */
-	    fprintf(stderr, "Brak wystarczającego wsparcia dla wątków - wychodzę!\n");
-	    MPI_Finalize();
-	    exit(-1);
-	    break;
-        case MPI_THREAD_FUNNELED: 
-            printf("tylko te wątki, ktore wykonaly mpi_init_thread mogą wykonać wołania do biblioteki mpi\n");
-	    break;
-        case MPI_THREAD_SERIALIZED: 
-            /* Potrzebne zamki wokół wywołań biblioteki MPI */
-            printf("tylko jeden watek naraz może wykonać wołania do biblioteki MPI\n");
-	    break;
-        case MPI_THREAD_MULTIPLE: printf("Pełne wsparcie dla wątków\n");
-	    break;
-        default: printf("Nikt nic nie wie\n");
-    }
-}
-
-/* srprawdza, czy są wątki, tworzy typ MPI_PAKIET_T
-*/
-void inicjuj(int *argc, char ***argv)
-{
-    int provided;
-    MPI_Init_thread(argc, argv,MPI_THREAD_MULTIPLE, &provided);
-    check_thread_support(provided);
-
-
-    /* Stworzenie typu */
-    /* Poniższe (aż do MPI_Type_commit) potrzebne tylko, jeżeli
-       brzydzimy się czymś w rodzaju MPI_Send(&typ, sizeof(pakiet_t), MPI_BYTE....
-    */
-    /* sklejone z stackoverflow */
-    const int nitems=3; /* bo packet_t ma trzy pola */
-    int       blocklengths[3] = {1,1,1};
-    MPI_Datatype typy[3] = {MPI_INT, MPI_INT, MPI_INT};
-
-    MPI_Aint     offsets[3]; 
-    offsets[0] = offsetof(packet_t, ts);
-    offsets[1] = offsetof(packet_t, src);
-    offsets[2] = offsetof(packet_t, data);
-
-    MPI_Type_create_struct(nitems, blocklengths, offsets, typy, &MPI_PAKIET_T);
-    MPI_Type_commit(&MPI_PAKIET_T);
-
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-    srand(rank);
-
-    pthread_create( &threadKom, NULL, startKomWatek , 0);
-    if (rank==0) {
-	pthread_create( &threadMon, NULL, startMonitor, 0);
-    }
-    debug("jestem");
-}
-
-/* usunięcie zamkków, czeka, aż zakończy się drugi wątek, zwalnia przydzielony typ MPI_PAKIET_T
-   wywoływane w funkcji main przed końcem
-*/
-void finalizuj()
-{
-    pthread_mutex_destroy( &stateMut);
-    /* Czekamy, aż wątek potomny się zakończy */
-    println("czekam na wątek \"komunikacyjny\"\n" );
-    pthread_join(threadKom,NULL);
-    if (rank==0) pthread_join(threadMon,NULL);
-    MPI_Type_free(&MPI_PAKIET_T);
-    MPI_Finalize();
-}
-
-
-void sendPacket(packet_t *pkt, int destination, int tag)
-{
-    int freepkt=0;
-    if (pkt==0) { pkt = malloc(sizeof(packet_t)); freepkt=1;}
-    pkt->src = rank;
-    MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
-    if (freepkt) free(pkt);
-}
-
-void changeState( state_t newState )
-{
-    pthread_mutex_lock( &stateMut );
-    if (stan==InFinish) { 
-	pthread_mutex_unlock( &stateMut );
-        return;
-    }
-    stan = newState;
-    pthread_mutex_unlock( &stateMut );
-}
+    int rank; // my own rank
+    int size; // how many skiers
+    int * tab_ack; // did I receive ack from a skier with that id? 1/0
+    queue_el *head; // pointer to a head of a queue
+};
 
 int main(int argc, char **argv)
 {
-    /* Tworzenie wątków, inicjalizacja itp */
-    inicjuj(&argc,&argv); // tworzy wątek komunikacyjny w "watek_komunikacyjny.c"
-    mainLoop();          // w pliku "watek_glowny.c"
+	
+	srand(time(NULL)); 
+    int rank,size;
 
-    finalizuj();
-    return 0;
+
+    int provided = 0;
+    MPI_Init_thread( &argc, &argv, MPI_THREAD_MULTIPLE,  &provided);
+    if (provided < MPI_THREAD_MULTIPLE)
+    {
+        printf("ERROR: The MPI library does not have full thread support\n");
+
+    }
+    else
+    {
+        printf("Full support for multiple threads!\n");
+    }
+
+
+    MPI_Comm_rank( MPI_COMM_WORLD, &rank);
+    MPI_Comm_size( MPI_COMM_WORLD, &size);
+    struct data dane;
+    dane.rank=rank;
+    dane.size=size;
+	dane.head=NULL;
+	srand(rank);
+    dane.tab_ack = malloc(dane.size*sizeof(int));
+    for (int i = 0; i < dane.size; i++)
+    {
+        dane.tab_ack[i] = 0;
+    }
+    dane.tab_ack[dane.rank] = 1; // set ack from yourself to 1
+
+	printf("Wątek %d zainicjował zmienne i rozpocząl działnie.\n", dane.rank);
+    pthread_t watek1,watek2;
+    // pthread_create(&watek1,NULL,receiveAndSendAck,&dane);
+    // pthread_create(&watek2,NULL,mainSkiThread,&dane);
+    pthread_join(watek1,NULL);
+    pthread_join(watek2,NULL);
+    pthread_mutex_destroy(&mutexClock);
+    pthread_cond_destroy(&cond);
+    pthread_mutex_destroy(&mutexCond);
+    free(dane.tab_ack);
+    MPI_Finalize();
+	printf("Koniec programu");
 }
-
