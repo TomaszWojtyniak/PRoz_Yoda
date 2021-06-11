@@ -10,12 +10,12 @@ void *startKomWatek(void *ptr)
     while ( TRUE ) {
 	debug("czekam na recv");
         MPI_Recv( &pakiet, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-       pthread_mutex_lock(&zegarMut);
+       pthread_mutex_lock(&clockLMut);
 		if(zegar > pakiet.ts)
 			zegar++;
 		else
 			zegar = pakiet.ts+1;
-        pthread_mutex_unlock(&zegarMut);
+        pthread_mutex_unlock(&clockLMut);
         structElement_t element;
         pthread_mutex_lock(&stateMut);
 

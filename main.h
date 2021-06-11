@@ -23,7 +23,7 @@
 
 #define ROOT 0
 
-typedef enum {REST, ALONE, WAIT, SINGLE, PAIR, INSECTION, RANK, INTERSECTION} state_t;
+typedef enum {INIT, REST, ALONE, WAIT, SINGLE, PAIR, INSECTION, RANK, INTERSECTION} state_t;
 extern state_t stan;
 extern int rank;
 extern int size;
@@ -31,9 +31,11 @@ extern int zegar;
 extern struct_t structQueue;
 extern int pairCounter;
 extern int para;
+extern int E;
+extern int which;
 
 extern pthread_mutex_t stateMut;
-extern pthread_mutex_t zegarMut;
+extern pthread_mutex_t clockLMut;
 
 /* to może przeniesiemy do global... */
 typedef struct {
