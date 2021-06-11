@@ -25,14 +25,41 @@ extern state_t stan;
 extern int rank;
 extern int size;
 
+
+/*Zasoby*/
+
+
+extern int E;
+
+
 /* to może przeniesiemy do global... */
 typedef struct {
     int ts;       /* timestamp (zegar lamporta */
     int src;      /* pole nie przesyłane, ale ustawiane w main_loop */
 
     int data;     /* przykładowe pole z danymi; można zmienić nazwę na bardziej pasującą */
+    int qts;   /* uzywany tylko w ACK [ jednak nie tylko ]*/ // ---dodane
+
 } packet_t;
 extern MPI_Datatype MPI_PAKIET_T;
+
+
+
+
+extern process_queue_node* energy_queue;
+
+
+
+
+#define REQUEST_ENERGY 1
+#define RELEASE_SOURCE 2
+#define ACK_ENERGY 3
+
+
+
+
+
+
 
 /* Typy wiadomości */
 #define FINISH 1
@@ -52,6 +79,22 @@ extern MPI_Datatype MPI_PAKIET_T;
                                            FORMAT:argumenty doklejone z wywołania debug poprzez __VA_ARGS__
 					   "%c[%d;%dm"       wyczyszczenie atrybutów    27,0,37
 */
+
+
+extern int iclock; //lamport clock
+
+int changeClock(int);
+int setClock(int);
+
+void energy_queue_add(int, int, int);
+void energy_queue_replace(int, int, int);
+void energy_queue_remove(int);
+int energy_queue_free();
+int energy_queue_my_ts();
+void energy_queue_clear();
+void energy_queue_print();
+int energy_queue_size();
+
 #ifdef DEBUG
 #define debug(FORMAT,...) printf("%c[%d;%dm [%d]: " FORMAT "%c[%d;%dm\n",  27, (1+(rank/7))%2, 31+(6+rank)%7, rank, ##__VA_ARGS__, 27,0,37);
 #else
