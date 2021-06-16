@@ -6,12 +6,12 @@ void mainLoop()
     srandom(rank);
     while (TRUE) {
         if(stan == INIT){
-            structElement_t element;
-            which = srand(10) %3; // 0 - Z , 1 - X, 2 - Y
+            packet_t pakiet;
+            which = srandom(rank) %3; // 0 - Z , 1 - X, 2 - Y
             if (which == 0){
                 changeE();
             }
-            element.master = which
+            pakiet.master = which
             changeState(REST)
         }
         else if(stan == REST){
@@ -29,10 +29,10 @@ void mainLoop()
                         sendPacket( pkt, i, SZUKAM_PARY);
                     }
                 }
-                structElement_t element;
+                packet_t pakiet;
                 element.priority = pr;
                 element.process = rank;
-                debug("Jestem mistrzem %d",element.master);
+                debug("Jestem mistrzem %d",pakiet.master);
                 //insertElement(&structQueue, element);
                 pairCounter = 0;
             }
