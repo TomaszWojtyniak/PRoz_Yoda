@@ -20,7 +20,7 @@ int stop = 0;
 
 state_t stan=INIT;
 volatile char end = FALSE;
-int size,rank, zegar, pairCounter, para;
+int size,rank, zegar, pairCounter, para, which, E;
 
 
 

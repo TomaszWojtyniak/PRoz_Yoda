@@ -10,6 +10,7 @@
 #include <string.h>
 #include <pthread.h>
 #include "structs.h"
+
 /* odkomentować, jeżeli się chce DEBUGI */
 #define DEBUG 
 /* boolean */

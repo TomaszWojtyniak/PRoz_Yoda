@@ -1,5 +1,12 @@
 #include "main.h"
 #include "watek_glowny.h"
+#include <mpi.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <unistd.h>
+#include <string.h>
+#include <pthread.h>
 
 void mainLoop()
 {
@@ -7,12 +14,16 @@ void mainLoop()
     while (TRUE) {
         if(stan == INIT){
             packet_t pakiet;
-            which = srandom(rank) %3; // 0 - Z , 1 - X, 2 - Y
+            //srand(rank); // 0 - Z , 1 - X, 2 - Y
+	    which = rank %3;
+	    debug("which: %d",which);
             if (which == 0){
                 changeE();
             }
-            pakiet.master = which
-            changeState(REST)
+            pakiet.master = which;
+	    debug("Mam przydzielona role %d i zmieniam stan na REST",pakiet.master);
+
+            changeState(REST);
         }
         else if(stan == REST){
             sleep(SEC_IN_STATE);
@@ -20,19 +31,19 @@ void mainLoop()
             pthread_mutex_lock( &stateMut ); 
             if (perc<STATE_CHANGE_PROB) {
                 debug("Zmieniam stan na ALONE");
-                changeState(ALONE);
+                //changeState(ALONE);
                 int pr = zegar;
                 for(int i=0; i< size; i++){
                     if(i != rank){
                         packet_t * pkt = malloc(sizeof(packet_t));
                         pkt->data = pr;
-                        sendPacket( pkt, i, SZUKAM_PARY);
+                        //sendPacket( pkt, i, SZUKAM_PARY);
                     }
                 }
                 packet_t pakiet;
+		structElement_t element;
                 element.priority = pr;
                 element.process = rank;
-                debug("Jestem mistrzem %d",pakiet.master);
                 //insertElement(&structQueue, element);
                 pairCounter = 0;
             }
