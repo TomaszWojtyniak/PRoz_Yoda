@@ -17,37 +17,60 @@ void mainLoop()
             //srand(rank); // 0 - Z , 1 - X, 2 - Y
 	    which = rank %3;
 	    debug("which: %d",which);
-            if (which == 0){
-                changeE();
-            }
-            pakiet.master = which;
-	    debug("Mam przydzielona role %d i zmieniam stan na REST",pakiet.master);
 
-            changeState(REST);
+        pakiet.master = which;
+	    debug("Mam przydzielona role %d i zmieniam stan na REST",pakiet.master);
+            if (which == 0){
+                changeState(REST_Z);
+            } else {
+                changeState(REST);
+            }
+
         }
         else if(stan == REST){
             sleep(SEC_IN_STATE);
             int perc = random()%100;
-            pthread_mutex_lock( &stateMut ); 
+            pthread_mutex_lock( &stateMut );
             if (perc<STATE_CHANGE_PROB) {
                 debug("Zmieniam stan na ALONE");
-                //changeState(ALONE);
+                changeState(ALONE);
                 int pr = zegar;
                 for(int i=0; i< size; i++){
                     if(i != rank){
                         packet_t * pkt = malloc(sizeof(packet_t));
                         pkt->data = pr;
-                        //sendPacket( pkt, i, SZUKAM_PARY);
+                        sendPacket( pkt, i, SZUKAM_PARY);
                     }
                 }
-                packet_t pakiet;
-		structElement_t element;
+                
+		        structElement_t element;
                 element.priority = pr;
                 element.process = rank;
-                //insertElement(&structQueue, element);
+                insertElement(&structQueue, element);
                 pairCounter = 0;
             }
         pthread_mutex_unlock( &stateMut);
+
+        }else if(stan == REST_Z){
+            if(checkEnergy() == 1){
+
+                pthread_mutex_lock( &stateMut);
+
+                changeState(INSECTION_Z);
+                pthread_mutex_unlock( &stateMut);
+            }
+        }else if(stan == INSECTION_Z){
+            if( E_full == true){
+                E_full = false;
+                changeState(REST_Z);
+            }
+            pthread_mutex_lock( &stateMut);
+
+            changeE();
+            bool E_full = true;
+            
+            pthread_mutex_unlock( &stateMut);
+
 
         } else if(stan == INSECTION){
             debug("Jestem z nadhiberprzestrzeni")

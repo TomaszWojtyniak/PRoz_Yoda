@@ -106,6 +106,7 @@ void inicjuj(int *argc, char ***argv){
     srand(rank);
 
     initQueue(&structQueue, size);
+    initQueue(&waitQueue, size);
 
     pthread_create( &threadKom, NULL, startKomWatek , 0);
     debug("Jestem zainicjowany");
@@ -144,6 +145,14 @@ void changeE()
 {
     pthread_mutex_lock( &stateMut );
     E += 1;
+    
+    for(int i=0; i< size; i++){
+        if(i != rank){
+            packet_t * pkt = malloc(sizeof(packet_t));
+            pkt->data = pr;
+            sendPacket( pkt, i, ZWIEKSZAM);
+        }
+    }
     pthread_mutex_unlock( &stateMut );
 }
 
@@ -177,4 +186,16 @@ int increaseClock(int unit ){
     zegar+=unit;
     pthread_mutex_unlock(&clockLMut);
     return zegar;
+}
+
+int checkEnergy(){
+    pthread_mutex_lock(&clockLMut);
+    int result;
+    if( E == 0){
+        result =  1;
+    } else if(E == size / 3){
+        result =  0;
+    }
+    pthread_mutex_unlock(&clockLMut);
+    return result;
 }

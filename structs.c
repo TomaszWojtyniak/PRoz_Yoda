@@ -33,3 +33,42 @@ void reserveQueue(struct_t * structQueue, int reserved)
     structQueue->data = ptr;
     structQueue->reserved = reserved;
 }
+
+void insertElement(struct_t * structQueue, structElement_t el)
+{
+    if(structQueue->size == structQueue->reserved)
+        reserveQueue(structQueue, structQueue->reserved*2);
+
+    int i = 0;
+    while(i < structQueue->size)
+    {
+        if(moreImportant(el, structQueue->data[i]))
+            break;
+        i++;
+    }
+
+    int j = structQueue->size;
+    while(j > i)
+    {
+        structQueue->data[j] = structQueue->data[j-1];
+        j--;
+    }
+    structQueue->data[i] = el;
+    structQueue->size++;
+
+}
+
+int moreImportant(structElement_t elementA, structElement_t elementB)
+{
+    if(elementA.process == -1)
+        return FALSE;
+    if(elementB.process == -1)
+        return TRUE;
+
+    if(elementA.priority < elementB.priority)
+        return TRUE;
+    if(elementA.priority == elementB.priority)
+        if(elementA.process < elementB.process)
+            return TRUE;
+    return FALSE;
+}

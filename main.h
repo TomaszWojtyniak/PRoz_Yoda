@@ -24,16 +24,18 @@
 
 #define ROOT 0
 
-typedef enum {INIT, REST, ALONE, WAIT, SINGLE, PAIR, INSECTION, RANK, INTERSECTION} state_t;
+typedef enum {INIT, REST, REST_Z, ALONE, WAIT, SINGLE, PAIR, INSECTION_Z, RANK, INTERSECTION} state_t;
 extern state_t stan;
 extern int rank;
 extern int size;
 extern int zegar;
-extern struct_t structQueue;
 extern int pairCounter;
 extern int para;
 extern int E;
 extern int which;
+
+extern struct_t structQueue;
+extern struct_t waitQueue;
 
 extern pthread_mutex_t stateMut;
 extern pthread_mutex_t clockLMut;
@@ -52,6 +54,7 @@ extern MPI_Datatype MPI_PAKIET_T;
 #define SZUKAM_PARY 1
 #define LACZE_PARE 2
 #define W_PARZE 3
+#define ZWIEKSZAM 4
 
 
 /* macro debug - działa jak printf, kiedy zdefiniowano
