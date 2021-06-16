@@ -5,8 +5,16 @@ void mainLoop()
 {
     srandom(rank);
     while (TRUE) {
-        if(stan == REST)
-        {
+        if(stan == INIT){
+            structElement_t element;
+            which = srand(10) %3; // 0 - Z , 1 - X, 2 - Y
+            if (which == 0){
+                changeE();
+            }
+            element.master = which
+            changeState(REST)
+        }
+        else if(stan == REST){
             sleep(SEC_IN_STATE);
             int perc = random()%100;
             pthread_mutex_lock( &stateMut ); 
@@ -24,10 +32,12 @@ void mainLoop()
                 structElement_t element;
                 element.priority = pr;
                 element.process = rank;
+                debug("Jestem mistrzem %d",element.master);
                 //insertElement(&structQueue, element);
                 pairCounter = 0;
             }
         pthread_mutex_unlock( &stateMut);
+
         } else if(stan == INSECTION){
             debug("Jestem z nadhiberprzestrzeni")
             sleep( SEC_IN_STATE);

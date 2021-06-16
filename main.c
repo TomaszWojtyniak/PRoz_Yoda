@@ -62,8 +62,8 @@ void check_thread_support(int provided)
 int main(int argc, char **argv)
 {
 	
-   // E = 3;
-    //which = srand(10) %2; // 1 - Z , 0 - X/Y
+    E = 0;
+
     inicjuj(&argc,&argv); // tworzy wątek komunikacyjny w "watek_komunikacyjny.c"
     mainLoop();          // w pliku "watek_glowny.c"
     finalizuj();
@@ -138,6 +138,13 @@ void changeState( state_t newState )
     // }
     stan = newState;
     // pthread_mutex_unlock( &stateMut );
+}
+
+void changeE()
+{
+    pthread_mutex_lock( &stateMut );
+    E += 1;
+    pthread_mutex_unlock( &stateMut );
 }
 
 
