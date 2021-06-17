@@ -1,134 +1,134 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <vector>
+//#include <vector>
 
 
-struct Data
-{
-	int id;
-	int priority;
-};
+// struct Data
+// {
+// 	int id;
+// 	int priority;
+// };
 
-class Position
-{
-public:
-	int id;
-	int priority;
-	Position* next;
+// class Position
+// {
+// public:
+// 	int id;
+// 	int priority;
+// 	Position* next;
 	
-public:
-	void set(int newId, int newPriority, Position* newNext = nullptr)
-	{
-		id = newId;
-		priority = newPriority;
-		next = newNext;
-	}
+// public:
+// 	void set(int newId, int newPriority, Position* newNext = nullptr)
+// 	{
+// 		id = newId;
+// 		priority = newPriority;
+// 		next = newNext;
+// 	}
 	
-	Position(int id = 0, int priority = 0, Position* next = nullptr)
-	{
-		this->id = id;
-		this->priority = priority;
-		this->next = next;
-	}
-};
+// 	Position(int id = 0, int priority = 0, Position* next = nullptr)
+// 	{
+// 		this->id = id;
+// 		this->priority = priority;
+// 		this->next = next;
+// 	}
+// };
 
-class Queue
-{
-private:
-	Position* first = nullptr;
+// class Queue
+// {
+// private:
+// 	Position* first = nullptr;
 	
-public:
-	Position*& getFirst()
-	{
-		return first;	
-	}
+// public:
+// 	Position*& getFirst()
+// 	{
+// 		return first;	
+// 	}
 	
-	void insert(int id, int priority, Position*& p)
-	{
-		if (!p)
-		{
-			p = new Position(id, priority, nullptr);
-			return;
-		}
+// 	void insert(int id, int priority, Position*& p)
+// 	{
+// 		if (!p)
+// 		{
+// 			p = new Position(id, priority, nullptr);
+// 			return;
+// 		}
 		
-		if ((p->priority < priority) || (p->priority == priority && p->id < id))
-		{
-			insert(id, priority, p->next);
-			return;
-		}
+// 		if ((p->priority < priority) || (p->priority == priority && p->id < id))
+// 		{
+// 			insert(id, priority, p->next);
+// 			return;
+// 		}
 		
-		if ((p->priority > priority) || (p->priority == priority && p->id > id))
-		{	
-			Position temp = *p;
-			p->set(id, priority);
-			p->next = new Position;
-			*(p->next) = temp;
+// 		if ((p->priority > priority) || (p->priority == priority && p->id > id))
+// 		{	
+// 			Position temp = *p;
+// 			p->set(id, priority);
+// 			p->next = new Position;
+// 			*(p->next) = temp;
 			
-			return;
-		}
-	}
+// 			return;
+// 		}
+// 	}
 	
-	void remove(int id, Position*& p)
-	{
-		if (!p)
-			return;
+// 	void remove(int id, Position*& p)
+// 	{
+// 		if (!p)
+// 			return;
 		
-		if (p->id == id)
-		{
-			Position* temp = p->next;
-			delete p;
-			p = temp;
-			return;	
-		}
+// 		if (p->id == id)
+// 		{
+// 			Position* temp = p->next;
+// 			delete p;
+// 			p = temp;
+// 			return;	
+// 		}
 		
-		remove(id, p->next);
-	}
+// 		remove(id, p->next);
+// 	}
 	
-	void removeAll(Position*& p)
-	{
-		if (!p)
-			return;
+// 	void removeAll(Position*& p)
+// 	{
+// 		if (!p)
+// 			return;
 		
-		removeAll(p->next);
+// 		removeAll(p->next);
 		
-		Position* temp = p->next;
-		delete p;
-		p = temp;
-	}
+// 		Position* temp = p->next;
+// 		delete p;
+// 		p = temp;
+// 	}
 	
-	void print(Position* p)
-	{
-		if (p == first)
-			printf("--------------------\n");
+// 	void print(Position* p)
+// 	{
+// 		if (p == first)
+// 			printf("--------------------\n");
 		
-		if (first == nullptr)
-			printf("empty\n");
+// 		if (first == nullptr)
+// 			printf("empty\n");
 		
-		if (!p)
-		{
-			printf("--------------------\n");
-			return;
-		}
+// 		if (!p)
+// 		{
+// 			printf("--------------------\n");
+// 			return;
+// 		}
 		
-		printf("id=%d | priority=%d\n", p->id, p->priority);
+// 		printf("id=%d | priority=%d\n", p->id, p->priority);
 		
-		print(p->next);
-	}
+// 		print(p->next);
+// 	}
 	
-	void getBetterVector(int id, std::vector<Data>& better, Position* p)
-	{
-		if (!p || p->id == id)
-			return;
+// 	void getBetterVector(int id, std::vector<Data>& better, Position* p)
+// 	{
+// 		if (!p || p->id == id)
+// 			return;
 		
-		Data data;
-		data.id = p->id;
-		data.priority = p->priority;
+// 		Data data;
+// 		data.id = p->id;
+// 		data.priority = p->priority;
 		
-		better.push_back(data);
+// 		better.push_back(data);
 		
-		getBetterVector(id, better, p->next);
-	}
-};
+// 		getBetterVector(id, better, p->next);
+// 	}
+// };
 
 // int main()
 // {

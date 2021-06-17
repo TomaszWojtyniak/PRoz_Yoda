@@ -109,5 +109,5 @@ int increaseClock(int unit );
 int getClock();
 int checkEnergy();
 void setClock(int newTime);
-void recvPacket(packet_t& pkt, MPI_Status& status);
+void recvPacket(packet_t *pkt, MPI_Status *status);
 #endif

@@ -5,7 +5,7 @@ void* startKomWatek_XY(void* ptr){
     packet_t recv;
     packet_t send;
 
-    while(true){
+    while(TRUE){
         recvPacket(recv, status);
 
         switch(status.MPI_TAG){

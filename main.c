@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <time.h>
 
-state_t stan=INIT;
+state_t stan;
 volatile char end = FALSE;
 int size; //ile procesow
 int rank; //ID processu
@@ -24,15 +24,15 @@ int E; //ilosc energii
 
 MPI_Datatype MPI_PAKIET_T;
 pthread_t threadKom;
-Queue waitQueue;
-Queue structQueue;
+//Queue waitQueue;
+//Queue structQueue;
 
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t clockLMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t energyMut = PTHREAD_MUTEX_INITIALIZER;
 
 
-std::map<int, bool> acksSent; //rank : true = ack sent, rank : false = ack not sent
+//std::map<int, bool> acksSent; //rank : true = ack sent, rank : false = ack not sent
 
 void check_thread_support(int provided)
 {
@@ -118,7 +118,7 @@ void inicjuj(int *argc, char ***argv){
         pthread_create( &threadKom, NULL, startKomWatek_Z , 0);
 
     } else {
-        changeState(REST);
+        changeState(REST_XY);
         pthread_create( &threadKom, NULL, startKomWatek_XY , 0);
     }
 
@@ -216,7 +216,7 @@ void sendPacketToAll(packet_t* pkt, int tag)
 	pkt->src = rank;
 	for (int i = 0;i < size;  i++){
 		if (i != rank){
-			MPI_Send(pkt, 1, MPI_PACKET_T, i, tag, MPI_COMM_WORLD);
+			MPI_Send(pkt, 1, MPI_PAKIET_T, i, tag, MPI_COMM_WORLD);
         }
     }
 }
@@ -231,7 +231,7 @@ void setClock(int newTime)
 	pthread_mutex_unlock(&clockLMut);
 }
 
-void recvPacket(packet_t& pkt, MPI_Status& status)
+void recvPacket(packet_t  *pkt, MPI_Status *status)
 {
 	MPI_Recv(&pkt, 1, MPI_PACKET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 	setClock(pkt.zegar + 1);

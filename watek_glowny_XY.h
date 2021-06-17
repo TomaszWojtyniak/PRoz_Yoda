@@ -5,7 +5,7 @@ void mainLoop_XY()
 {
     packet_t pakiet;
 
-    while (true) {
+    while (TRUE) {
         if(stan == REST_XY){
 
 
