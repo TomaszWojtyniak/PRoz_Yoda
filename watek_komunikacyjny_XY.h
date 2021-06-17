@@ -6,7 +6,7 @@ void* startKomWatek_XY(void* ptr){
     packet_t send;
 
     while(TRUE){
-        recvPacket(recv, status);
+        recvPacket(&recv, &status);
 
         switch(status.MPI_TAG){
             case UZUPELNIONO:

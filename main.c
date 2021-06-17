@@ -233,6 +233,6 @@ void setClock(int newTime)
 
 void recvPacket(packet_t  *pkt, MPI_Status *status)
 {
-	MPI_Recv(&pkt, 1, MPI_PACKET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-	setClock(pkt.zegar + 1);
+	MPI_Recv(&pkt, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+	setClock(pkt->zegar + 1);
 }
