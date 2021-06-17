@@ -101,7 +101,7 @@ extern MPI_Datatype MPI_PAKIET_T;
 void sendPacket(packet_t *pkt, int destination, int tag);
 
 void changeState( state_t newState);
-void changeE();
+void changeE(packet_t* pkt);
 void init(int *argc, char ***argv);
 int updateClock(int unit );
 void checkThreadSupport(int provided);
@@ -110,4 +110,6 @@ int getClock();
 int checkEnergy();
 void setClock(int newTime);
 void recvPacket(packet_t *pkt, MPI_Status *status);
+void sendPacketToAll(packet_t* send, int tag);
+
 #endif
