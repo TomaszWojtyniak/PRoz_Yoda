@@ -24,8 +24,8 @@ int E; //ilosc energii
 
 MPI_Datatype MPI_PAKIET_T;
 pthread_t threadKom;
-//Queue waitQueue;
-//Queue structQueue;
+Queue waitQueue;
+Queue structQueue;
 
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t clockLMut = PTHREAD_MUTEX_INITIALIZER;
