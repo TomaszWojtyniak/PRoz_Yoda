@@ -10,7 +10,7 @@
 #include <string.h>
 #include <pthread.h>
 #include "structs.h"
-
+#include <map>
 /* odkomentować, jeżeli się chce DEBUGI */
 #define DEBUG 
 /* boolean */
@@ -51,11 +51,7 @@ typedef struct {
     int E;
 } packet_t;
 
-struct Data
-{
-	int id;
-	int priority;
-};
+
 
 
 extern MPI_Datatype MPI_PAKIET_T;
@@ -109,7 +105,8 @@ int increaseClock(int unit );
 int getClock();
 int checkEnergy();
 void setClock(int newTime);
-void recvPacket(packet_t *pkt, MPI_Status *status);
+void recvPacket(packet_t &pkt, MPI_Status &status);
 void sendPacketToAll(packet_t* send, int tag);
-
+void finalizuj();
+void inicjuj(int *argc, char***argv);
 #endif
