@@ -24,7 +24,7 @@
 
 #define ROOT 0
 
-typedef enum {INIT, REST, REST_Z, ALONE, WAIT, SINGLE, PAIR, INSECTION_Z, RANK, INTERSECTION} state_t;
+typedef enum {REST_XY, REST_Z, WAIT_XY,INSECTION_Z, INSECTION_XY} state_t;
 extern state_t stan;
 extern int rank;
 extern int size;
@@ -34,20 +34,30 @@ extern int para;
 extern int E;
 extern int which;
 
-extern struct_t structQueue;
-extern struct_t waitQueue;
+extern Queue structQueue;
+extern Queue waitQueue;
 
 extern pthread_mutex_t stateMut;
 extern pthread_mutex_t clockLMut;
 
+extern std::map<int, bool> acksSent;
+
 /* to może przeniesiemy do global... */
 typedef struct {
-    int ts;       /* timestamp (zegar lamporta */
+    int zegar;       /* timestamp (zegar lamporta */
     int src;      /* pole nie przesyłane, ale ustawiane w main_loop */
 
     int data;     /* przykładowe pole z danymi; można zmienić nazwę na bardziej pasującą */
-    int master;
+    int E;
 } packet_t;
+
+struct Data
+{
+	int id;
+	int priority;
+};
+
+
 extern MPI_Datatype MPI_PAKIET_T;
 
 /* Typy wiadomości */
@@ -55,6 +65,7 @@ extern MPI_Datatype MPI_PAKIET_T;
 #define LACZE_PARE 2
 #define W_PARZE 3
 #define ZWIEKSZAM 4
+#define UZUPELNIONO 5
 
 
 /* macro debug - działa jak printf, kiedy zdefiniowano
@@ -88,5 +99,15 @@ extern MPI_Datatype MPI_PAKIET_T;
 #define println(FORMAT, ...) printf("%c[%d;%dm [%d]: " FORMAT "%c[%d;%dm\n",  27, (1+(rank/7))%2, 31+(6+rank)%7, rank, ##__VA_ARGS__, 27,0,37);
 
 void sendPacket(packet_t *pkt, int destination, int tag);
-void changeState( state_t );
+
+void changeState( state_t newState);
+void changeE();
+void init(int *argc, char ***argv);
+int updateClock(int unit );
+void checkThreadSupport(int provided);
+int increaseClock(int unit );
+int getClock();
+int checkEnergy();
+void setClock(int newTime);
+void recvPacket(packet_t& pkt, MPI_Status& status);
 #endif

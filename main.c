@@ -1,26 +1,22 @@
-#include "mpi.h"
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "main.h"
-#include "watek_komunikacyjny.h"
-#include "watek_glowny.h"
-#include "monitor.h"
-#include "structs.h"
+#include "watek_komunikacyjny_Z.h"
+#include "watek_komunikacyjny_XY.h"
+#include "watek_glowny_Z.h"
+#include "watek_glowny_XY.h"
 /* wątki */
 
 #include <pthread.h>
-#include <unistd.h>
 #include <time.h>
-
-int clockLamport = 0;
-int stop = 0;
-
-
 
 state_t stan=INIT;
 volatile char end = FALSE;
-int size,rank, zegar, pairCounter, para, which, E;
+int size; //ile procesow
+int rank; //ID processu
+int zegar; //Lamport
+int pairCounter;
+int para;
+int which; //jaka klasa
+int E; //ilosc energii
 
 
 
@@ -28,11 +24,15 @@ int size,rank, zegar, pairCounter, para, which, E;
 
 MPI_Datatype MPI_PAKIET_T;
 pthread_t threadKom;
-struct_t structQueue;
+Queue waitQueue;
+Queue structQueue;
 
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t clockLMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t energyMut = PTHREAD_MUTEX_INITIALIZER;
+
+
+std::map<int, bool> acksSent; //rank : true = ack sent, rank : false = ack not sent
 
 void check_thread_support(int provided)
 {
@@ -62,10 +62,14 @@ void check_thread_support(int provided)
 int main(int argc, char **argv)
 {
 	
-    E = 0;
 
-    inicjuj(&argc,&argv); // tworzy wątek komunikacyjny w "watek_komunikacyjny.c"
-    mainLoop();          // w pliku "watek_glowny.c"
+    inicjuj(&argc,&argv); 
+    if(which == 0){
+        mainLoop_Z();
+
+    } else {
+        mainLoop_XY();
+    }   
     finalizuj();
     return 0;
     
@@ -91,10 +95,10 @@ void inicjuj(int *argc, char ***argv){
     MPI_Datatype typy[4] = {MPI_INT, MPI_INT, MPI_INT, MPI_INT};
 
     MPI_Aint     offsets[4]; 
-    offsets[0] = offsetof(packet_t, ts);
+    offsets[0] = offsetof(packet_t, zegar);
     offsets[1] = offsetof(packet_t, src);
     offsets[2] = offsetof(packet_t, data);
-    offsets[3] = offsetof(packet_t, master);
+    offsets[3] = offsetof(packet_t, E);
 
     
 
@@ -105,10 +109,19 @@ void inicjuj(int *argc, char ***argv){
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     srand(rank);
 
-    initQueue(&structQueue, size);
-    initQueue(&waitQueue, size);
+    zegar = 0;
+    E = 0;
+    which = rank %3;
+    debug("Mam przydzielona role %d i zmieniam stan na REST",which);
+    if(which == 0){
+        changeState(REST_Z);
+        pthread_create( &threadKom, NULL, startKomWatek_Z , 0);
 
-    pthread_create( &threadKom, NULL, startKomWatek , 0);
+    } else {
+        changeState(REST);
+        pthread_create( &threadKom, NULL, startKomWatek_XY , 0);
+    }
+
     debug("Jestem zainicjowany");
 }
 
@@ -128,31 +141,23 @@ void finalizuj()
 
 
 
-   
-
 void changeState( state_t newState )
 {
-    // pthread_mutex_lock( &stateMut );
-    // if (stan==RELEASE) { 
-	// pthread_mutex_unlock( &stateMut );
-    //     return;
-    // }
+    increaseClock(1);
+    pthread_mutex_lock( &stateMut );
+
     stan = newState;
-    // pthread_mutex_unlock( &stateMut );
+    pthread_mutex_unlock( &stateMut );
 }
 
-void changeE()
+void changeE(packet_t * pkt)
 {
+
+    increaseClock(1);
     pthread_mutex_lock( &stateMut );
-    E += 1;
-    
-    for(int i=0; i< size; i++){
-        if(i != rank){
-            packet_t * pkt = malloc(sizeof(packet_t));
-            pkt->data = pr;
-            sendPacket( pkt, i, ZWIEKSZAM);
-        }
-    }
+    pkt->E += 1;
+    sendPacketToAll(pkt, ZWIEKSZAM);
+
     pthread_mutex_unlock( &stateMut );
 }
 
@@ -160,17 +165,10 @@ void changeE()
 
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
-    // int freepkt=0;
-    // if (pkt==0) { pkt = malloc(sizeof(packet_t)); freepkt=1;}
-    // pkt->src = rank;
-    // MPI_Send( pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
-    // if (freepkt) free(pkt);
-
-
-
-    
+    increaseClock(1);
     pkt->src = rank;
-    pkt->ts = increaseClock(1);
+    pkt->zegar = getClock();
+    pkt->src = rank;
     MPI_Send(pkt, 1, MPI_PAKIET_T, destination, tag, MPI_COMM_WORLD);
 }
 
@@ -188,14 +186,53 @@ int increaseClock(int unit ){
     return zegar;
 }
 
+int getClock()
+{
+	int ts;
+	pthread_mutex_lock(&clockLMut);
+	ts = zegar;
+	pthread_mutex_unlock(&clockLMut);
+	return ts;
+}
+
 int checkEnergy(){
     pthread_mutex_lock(&clockLMut);
     int result;
-    if( E == 0){
+    if( E == 0){ //pusta
         result =  1;
-    } else if(E == size / 3){
+    } else if(E == size / 3){ //pelna
         result =  0;
+    } else { // niepusta i niepelna
+        result = 2;
     }
     pthread_mutex_unlock(&clockLMut);
     return result;
+}
+
+void sendPacketToAll(packet_t* pkt, int tag)
+{
+	increaseClock(1); //LAMPORT CLOCK
+	pkt->zegar = getClock();
+	pkt->src = rank;
+	for (int i = 0;i < size;  i++){
+		if (i != rank){
+			MPI_Send(pkt, 1, MPI_PACKET_T, i, tag, MPI_COMM_WORLD);
+        }
+    }
+}
+
+void setClock(int newTime)
+{
+	pthread_mutex_lock(&clockLMut);
+	if (newTime > zegar + 1)
+		zegar = newTime;
+	else
+		zegar++;
+	pthread_mutex_unlock(&clockLMut);
+}
+
+void recvPacket(packet_t& pkt, MPI_Status& status)
+{
+	MPI_Recv(&pkt, 1, MPI_PACKET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+	setClock(pkt.zegar + 1);
 }
