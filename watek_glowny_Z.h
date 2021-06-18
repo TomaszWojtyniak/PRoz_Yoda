@@ -6,7 +6,7 @@ void mainLoop_Z()
 
     while (TRUE) {
         if(stan == REST_Z){
-            if(checkEnergy() != 0 && isFilled = TRUE){ //energia nie pelna
+            if(checkEnergy() != 0 && isFilled == TRUE){ //energia nie pelna
                 debug("energia pusta, wchodze do sekcji");
 
                 pthread_mutex_lock( &stateMut);
