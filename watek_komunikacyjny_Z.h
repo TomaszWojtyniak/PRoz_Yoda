@@ -27,7 +27,7 @@ void* startKomWatek_Z(void* ptr){
                 pthread_mutex_lock(&energyMut);
                 debug("Dostałem komunikat o zwiekszeniu energii, aktualizje swoją lokalna zmienna recv.E %d  E %d",recv.E, E);
 
-                recv.E += 1;
+                E += 1;
                 debug("Energia po zwiekszeniu recv.E %d  E %d",recv.E, E);
 
                 pthread_mutex_unlock(&energyMut);
@@ -37,7 +37,7 @@ void* startKomWatek_Z(void* ptr){
                 pthread_mutex_lock(&energyMut);
                 debug("Dostałem komunikat o zmniejszeniu energii, aktualizje swoją lokalna zmienna %d",recv.E);
 
-                recv.E -= 1;
+                E -= 1;
 
                 debug("Energia po zmniejszeniu %d",recv.E);
 
