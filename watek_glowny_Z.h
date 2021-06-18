@@ -19,7 +19,7 @@ void mainLoop_Z()
             pthread_mutex_lock( &stateMut);
 
             changeE(&pakiet);
-            debug("Uzupelnilem energie");
+            debug("Uzupelnilem energie do %d",pakiet.E);
             if(checkEnergy()== 0){ //energia pelna
                 sendPacketToAll(&pakiet, UZUPELNIONO);
             }
