@@ -274,7 +274,7 @@ void sendPacketToAllAndAddMeToSectionQueue(packet_t* pkt, int tag){
 }
 
 bool areAllAcksSent(){
-    pthread)mutex_lock(&ackMut);
+    pthread_mutex_lock(&ackMut);
     for( int i=0; i< size; i++){
         if( i != rank){
             if(acksSent[i] == false){

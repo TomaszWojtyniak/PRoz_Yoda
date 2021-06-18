@@ -23,6 +23,7 @@
 #define LOOSE_TIME 5
 
 #define ROOT 0
+#define SLEEP_TIME 5
 
 typedef enum {REST_XY, REST_Z,PAIRED_XY, WAIT_XY,INSECTION_Z, INSECTION_XY} state_t;
 extern state_t stan;

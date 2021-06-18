@@ -7,7 +7,7 @@ void mainLoop_XY()
 
     while (TRUE) {
         if(stan == REST_XY){
-
+            debug("jestem w restXY");
 
         } else if (stan == PAIRED_XY){
             pthread_mutex_lock(&ackMut);
