@@ -19,11 +19,11 @@ void mainLoop_XY()
             pthread_mutex_unlock(&ackMut);
             sendPacketToAllAndAddMeToSectionQueue(&pakiet, DO_SEKCJI );
             
-            changeState(WAIT_XY)
+            changeState(WAIT_XY);
 
 
         } else if (stan == WAIT_XY){
-            if(areAllAcksSent())){
+            if(areAllAcksSent()){
                 pthread_mutex_lock(&ackMut);
 
                 pthread_mutex_lock(&waitQueueMut);
