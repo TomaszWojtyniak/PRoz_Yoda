@@ -27,7 +27,7 @@ void mainLoop_XY()
                 pthread_mutex_lock(&ackMut);
 
                 pthread_mutex_lock(&waitQueueMut);
-                waitQueue.remove(rank);
+                waitQueue.remove(rank,waitQueue.getFirst());
                 pthread_mutex_unlock(&waitQueueMut);
                 sleep(SLEEP_TIME);
                 for (int i=0; i< size;i++){
