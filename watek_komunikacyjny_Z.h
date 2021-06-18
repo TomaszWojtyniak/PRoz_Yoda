@@ -15,7 +15,7 @@ void* startKomWatek_Z(void* ptr){
 
             case ZWIEKSZAM:
             pthread_mutex_lock(&energyMut);
-                recv.E += 1;
+            recv.E += 1;
             pthread_mutex_unlock(&energyMut);
             break;
         }

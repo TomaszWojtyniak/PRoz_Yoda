@@ -30,6 +30,8 @@ Queue structQueue;
 pthread_mutex_t stateMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t clockLMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t energyMut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t ackMut = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t waitQueueMut = PTHREAD_MUTEX_INITIALIZER;
 
 
 //std::map<int, bool> acksSent; //rank : true = ack sent, rank : false = ack not sent
@@ -235,4 +237,37 @@ void recvPacket(packet_t  &pkt, MPI_Status &status)
 {
 	MPI_Recv(&pkt, 1, MPI_PAKIET_T, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 	setClock(pkt.zegar + 1);
+}
+
+void sendPacketToAllAndAddMeToSectionQueue(packet_t* pkt, int tag){
+    increaseClock(1);
+    pthread_mutex_lock(&clockLMut);
+    pkt->zegar = zegar;
+    pkt->src = rank;
+
+    pthread_mutex_lock(&waitQueueMut);
+    waitQueue.insert(rank, zegar,waitQueue.getFirst());
+    pthread_mutex_unlock(&waitQueueMut);
+
+    for (int i =0;i<size;i++){
+        if(i != rank){
+            MPI_SEND(pkt, 1, MPI_PAKIET_T,i,tag,MPI_COMM_WORLD);
+        }
+    }
+    pthread_mutex_unlock(&clockLMut);
+}
+
+bool areAllAcksSent(){
+    pthread)mutex_lock(&ackMut);
+    for( int i=0; i< size; i++){
+        if( i != rank){
+            if(acksSent[i] == false){
+                pthread_mutex_unlock(&ackMut);
+
+                return false;
+            }
+        }
+    }
+    pthread_mutex_unlock(&ackMut);
+    return true;
 }

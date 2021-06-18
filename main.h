@@ -24,7 +24,7 @@
 
 #define ROOT 0
 
-typedef enum {REST_XY, REST_Z, WAIT_XY,INSECTION_Z, INSECTION_XY} state_t;
+typedef enum {REST_XY, REST_Z,PAIRED_XY, WAIT_XY,INSECTION_Z, INSECTION_XY} state_t;
 extern state_t stan;
 extern int rank;
 extern int size;
@@ -40,6 +40,8 @@ extern Queue waitQueue;
 extern pthread_mutex_t stateMut;
 extern pthread_mutex_t clockLMut;
 extern pthread_mutex_t energyMut;
+extern pthread_mutex_t ackMut;
+extern pthread_mutex_t waitQueueMut;
 
 extern std::map<int, bool> acksSent;
 
@@ -63,6 +65,8 @@ extern MPI_Datatype MPI_PAKIET_T;
 #define W_PARZE 3
 #define ZWIEKSZAM 4
 #define UZUPELNIONO 5
+#define DO_SEKCJI 6
+#define ACK 7
 
 
 /* macro debug - działa jak printf, kiedy zdefiniowano
@@ -110,4 +114,6 @@ void recvPacket(packet_t &pkt, MPI_Status &status);
 void sendPacketToAll(packet_t* send, int tag);
 void finalizuj();
 void inicjuj(int *argc, char***argv);
+void sendPacketToAllAndAddMeToSectionQueue(packet_t* pkt, int tag);
+bool areAllAcksSent();
 #endif
