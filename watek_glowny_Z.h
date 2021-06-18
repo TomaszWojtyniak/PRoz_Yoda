@@ -24,7 +24,7 @@ void mainLoop_Z()
                 changeState(INSECTION_Z);
                 pthread_mutex_unlock( &stateMut);
             }
-        }
+        
 
             
 

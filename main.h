@@ -25,7 +25,7 @@
 #define ROOT 0
 #define SLEEP_TIME 5
 
-typedef enum {REST_XY, REST_Z,PAIRED_XY, WAIT_XY,INSECTION_Z, INSECTION_XY} state_t;
+typedef enum {REST_XY, REST_Z,PAIRED_XY, WAIT_XY,INSECTION_Z, INSECTION_XY, WAIT_Z} state_t;
 extern state_t stan;
 extern int rank;
 extern int size;
