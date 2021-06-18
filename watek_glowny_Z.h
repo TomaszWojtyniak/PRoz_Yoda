@@ -27,13 +27,13 @@ void mainLoop_Z()
             
 
         } else if (stan == INSECTION_Z){
-            debug("Poziom energi przed uzupełnieniem %d",pakiet.E);
+            debug("Poziom energi przed uzupełnieniem %d",pakiet->E);
            
 
             changeE(&pakiet);
             
             
-            debug("Uzupelnilem energie do %d",pakiet.E);
+            debug("Uzupelnilem energie do %d",E);
             if(checkEnergy()== 0){ //energia pelna
                 sendPacketToAll(&pakiet, UZUPELNIONO);
                 // isFilled = TRUE;
