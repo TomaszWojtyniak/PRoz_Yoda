@@ -39,6 +39,7 @@ extern Queue waitQueue;
 
 extern pthread_mutex_t stateMut;
 extern pthread_mutex_t clockLMut;
+extern pthread_mutex_t energyMut;
 
 extern std::map<int, bool> acksSent;
 
