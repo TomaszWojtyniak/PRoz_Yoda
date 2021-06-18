@@ -35,7 +35,7 @@ pthread_mutex_t waitQueueMut = PTHREAD_MUTEX_INITIALIZER;
 
 
 std::map<int, bool> acksSent; //rank : true = ack sent, rank : false = ack not sent
-bool isFilled;
+
 void check_thread_support(int provided)
 {
     printf("THREAD SUPPORT: chcemy %d. Co otrzymamy?\n", provided);
@@ -99,8 +99,9 @@ void inicjuj(int *argc, char ***argv){
     MPI_Aint     offsets[4]; 
     offsets[0] = offsetof(packet_t, zegar);
     offsets[1] = offsetof(packet_t, src);
-    offsets[2] = offsetof(packet_t, data);
+    offsets[2] = offsetof(packet_t, isFilled);
     offsets[3] = offsetof(packet_t, E);
+    
 
     
 
@@ -114,6 +115,7 @@ void inicjuj(int *argc, char ***argv){
     zegar = 0;
     E = 0;
     which = rank %3;
+    isFilled = TRUE;
     debug("Mam przydzielona role %d i zmieniam stan na REST",which);
     if(which == 0){
         changeState(REST_Z);

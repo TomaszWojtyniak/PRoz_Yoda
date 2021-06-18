@@ -35,7 +35,7 @@ extern int para;
 extern int E;
 extern int which;
 
-extern bool isFilled;
+extern int isFilled;
 extern Queue structQueue;
 extern Queue waitQueue;
 
@@ -52,7 +52,7 @@ typedef struct {
     int zegar;       /* timestamp (zegar lamporta */
     int src;      /* pole nie przesyłane, ale ustawiane w main_loop */
 
-    int data;     /* przykładowe pole z danymi; można zmienić nazwę na bardziej pasującą */
+    int isFilled;     /* przykładowe pole z danymi; można zmienić nazwę na bardziej pasującą */
     int E;
 } packet_t;
 

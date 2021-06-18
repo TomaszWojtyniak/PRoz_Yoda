@@ -12,6 +12,7 @@ void mainLoop_XY()
 
         } else if (stan == PAIRED_XY){
             pthread_mutex_lock(&ackMut);
+            debug("jestem sparowany XY");
             for(int i=0;i< size;i++){
                 if(i != rank){
                     acksSent[i] = false;
@@ -26,6 +27,7 @@ void mainLoop_XY()
         } else if (stan == WAIT_XY){
             if(areAllAcksSent()){
                 pthread_mutex_lock(&ackMut);
+                debug("jestem sparowany WAIT_XY");
 
                 pthread_mutex_lock(&waitQueueMut);
                 waitQueue.remove(rank,waitQueue.getFirst());
@@ -41,6 +43,10 @@ void mainLoop_XY()
             }
 
         } else if (stan == INSECTION_XY){
+
+
+
+            debug("Wchodze do sekcji krytycznej");
 
             pthread_mutex_lock(&energyMut);
             debug("Poziom energi przed zabraniem %d",pakiet.E);
