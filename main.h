@@ -71,6 +71,7 @@ extern MPI_Datatype MPI_PAKIET_T;
 #define ACK 7
 #define ZMNIEJSZAM 8
 #define BRAK_ENERGI 9
+#define WYCHODZE_XY 10
 
 
 /* macro debug - działa jak printf, kiedy zdefiniowano

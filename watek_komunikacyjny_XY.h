@@ -36,8 +36,16 @@ void* startKomWatek_XY(void* ptr){
             case ACK:
 
                 pthread_mutex_lock(&ackMut);
+                debug("daje zgode ack");
                 acksSent[recv.src] = true;
                 pthread_mutex_unlock(&ackMut);
+            break;
+
+            case WYCHODZE_XY:
+            debug("usuwam wychodzacego z kolejki");
+                pthread_mutex_lock(&waitQueueMut);
+                waitQueue.remove(recv.src, waitQueue.getFirst());
+                pthread_mutex_unlock(&waitQueueMut);
             break;
         }
 
