@@ -71,9 +71,9 @@ int main(int argc, char **argv)
         mainLoop_Z();
 
     } 
-    // else {
-    //     mainLoop_XY();
-    // }   
+    else {
+        mainLoop_XY();
+    }   
     finalizuj();
     return 0;
     
@@ -124,10 +124,10 @@ void inicjuj(int *argc, char ***argv){
         pthread_create( &threadKom, NULL, startKomWatek_Z , 0);
     }
 
-    // } else {
-    //     changeState(REST_XY);
-    //     pthread_create( &threadKom, NULL, startKomWatek_XY , 0);
-    // }
+    } else {
+        changeState(REST_XY);
+        pthread_create( &threadKom, NULL, startKomWatek_XY , 0);
+    }
 
     debug("Jestem zainicjowany");
 }

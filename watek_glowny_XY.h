@@ -7,8 +7,10 @@ void mainLoop_XY()
 
     while (TRUE) {
         if(stan == REST_XY){
-            debug("jestem w restXY");
-            changeState(PAIRED_XY);
+            // debug("jestem w restXY");
+            // changeState(PAIRED_XY);
+            debug("Ile jest energii %d", checkEnergy());
+            sleep(SLEEP_TIME);
 
         } else if (stan == PAIRED_XY){
             pthread_mutex_lock(&ackMut);
