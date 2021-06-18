@@ -19,10 +19,8 @@ void mainLoop_Z()
                 
                 debug("energia pusta, wchodze do sekcji");
 
-                pthread_mutex_lock( &stateMut);
 
                 changeState(INSECTION_Z);
-                pthread_mutex_unlock( &stateMut);
             }
         
 
@@ -45,10 +43,8 @@ void mainLoop_Z()
             }
 
             
-            pthread_mutex_lock( &stateMut);
 
             changeState(REST_Z);
-            pthread_mutex_unlock( &stateMut);
 
         }
 
