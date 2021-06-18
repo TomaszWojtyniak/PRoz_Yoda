@@ -118,7 +118,7 @@ void inicjuj(int *argc, char ***argv){
     isFilled = TRUE;
     debug("Mam przydzielona role %d i zmieniam stan na REST",which);
     if(which == 0){
-        changeState(REST_Z);
+        changeState(WAIT_Z);
         pthread_create( &threadKom, NULL, startKomWatek_Z , 0);
 
     } else {
