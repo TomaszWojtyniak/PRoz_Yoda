@@ -164,7 +164,7 @@ void changeState( state_t newState )
 
 void changeE(packet_t * pkt)
 {
-
+    debug("Jestem w change E")
     increaseClock(1);
     pthread_mutex_lock( &energyMut );
     pkt->E += 1;
