@@ -69,9 +69,10 @@ int main(int argc, char **argv)
     if(which == 0){
         mainLoop_Z();
 
-    } else {
-        mainLoop_XY();
-    }   
+    } 
+    // else {
+    //     mainLoop_XY();
+    // }   
     finalizuj();
     return 0;
     
@@ -120,11 +121,12 @@ void inicjuj(int *argc, char ***argv){
     if(which == 0){
         changeState(WAIT_Z);
         pthread_create( &threadKom, NULL, startKomWatek_Z , 0);
-
-    } else {
-        changeState(REST_XY);
-        pthread_create( &threadKom, NULL, startKomWatek_XY , 0);
     }
+
+    // } else {
+    //     changeState(REST_XY);
+    //     pthread_create( &threadKom, NULL, startKomWatek_XY , 0);
+    // }
 
     debug("Jestem zainicjowany");
 }
