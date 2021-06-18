@@ -240,6 +240,7 @@ void sendPacketToAll(packet_t* pkt, int tag)
 	increaseClock(1); //LAMPORT CLOCK
 	pkt->zegar = getClock();
 	pkt->src = rank;
+    pkt->E = E;
 	for (int i = 0;i < size;  i++){
 		if (i != rank){
 			MPI_Send(pkt, 1, MPI_PAKIET_T, i, tag, MPI_COMM_WORLD);
