@@ -34,6 +34,7 @@ extern int para;
 extern int E;
 extern int which;
 
+extern bool isFilled;
 extern Queue structQueue;
 extern Queue waitQueue;
 
@@ -67,6 +68,8 @@ extern MPI_Datatype MPI_PAKIET_T;
 #define UZUPELNIONO 5
 #define DO_SEKCJI 6
 #define ACK 7
+#define ZMNIEJSZAM 8
+#define BRAK_ENERGI 9
 
 
 /* macro debug - działa jak printf, kiedy zdefiniowano
@@ -82,7 +85,7 @@ extern MPI_Datatype MPI_PAKIET_T;
 					   "%c[%d;%dm"       wyczyszczenie atrybutów    27,0,37
 */
 #ifdef DEBUG
-#define debug(FORMAT,...) printf("%c[%d;%dm [%d]: " FORMAT "%c[%d;%dm\n",  27, (1+(rank/7))%2, 31+(6+rank)%7, rank, ##__VA_ARGS__, 27,0,37);
+#define debug(FORMAT,...) printf("%c[%d;%dm [%d][%d]: " FORMAT "%c[%d;%dm\n",  27, (1+(rank/7))%2, 31+(6+rank)%7, rank,zegar, ##__VA_ARGS__, 27,0,37);
 #else
 #define debug(...) ;
 #endif
@@ -103,6 +106,7 @@ void sendPacket(packet_t *pkt, int destination, int tag);
 
 void changeState( state_t newState);
 void changeE(packet_t* pkt);
+void decreaseE(packet_t* pkt);
 void init(int *argc, char ***argv);
 int updateClock(int unit );
 void checkThreadSupport(int provided);

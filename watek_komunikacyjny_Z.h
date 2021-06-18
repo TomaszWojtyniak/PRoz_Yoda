@@ -10,6 +10,7 @@ void* startKomWatek_Z(void* ptr){
 
         switch(status.MPI_TAG){
             case UZUPELNIONO:
+            isFilled = TRUE;
 
             break;
 
@@ -18,6 +19,11 @@ void* startKomWatek_Z(void* ptr){
             recv.E += 1;
             pthread_mutex_unlock(&energyMut);
             break;
+
+            case ZMNIEJSZAM:
+            pthread_mutex_lock(&energyMut);
+            recv.E -= 1;
+            pthread_mutex_unlock(&energyMut);
         }
 
     }

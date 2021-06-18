@@ -26,7 +26,9 @@ void mainLoop_XY()
             if(areAcksSent()){
                 pthread_mutex_lock(&ackMut);
 
-                
+                pthread_mutex_lock(&waitQueueMut);
+                waitQueue.remove(rank);
+                pthread_mutex_unlock(&waitQueueMut);
                 sleep(SLEEP_TIME);
                 for (int i=0; i< size;i++){
                     if( rank != rank){
@@ -38,6 +40,17 @@ void mainLoop_XY()
             }
 
         } else if (stan == INSECTION_XY){
+
+            pthread_mutex_lock(&energyMut);
+            debug("Poziom energi przed zabraniem %d",pakiet.E);
+
+            decreaseE(&pakiet);
+            if(checkEnergy() == 1){
+                sendPacketToAll(&pakiet, BRAK_ENERGI);
+            }
+
+            debug("Obniżam energie do %d",pakiet.E);
+            pthread_mutex_unlock(&energyMut);
 
         }
 

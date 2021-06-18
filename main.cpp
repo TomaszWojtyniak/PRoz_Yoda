@@ -164,6 +164,16 @@ void changeE(packet_t * pkt)
 }
 
 
+void decreaseE(packet_t * pkt){
+    increaseClock(1);
+    pthread_mutex_lock( &stateMut );
+    pkt->E -= 1;
+    sendPacketToAll(pkt, ZMNIEJSZAM);
+
+    pthread_mutex_unlock( &stateMut );
+}
+
+
 
 void sendPacket(packet_t *pkt, int destination, int tag)
 {
@@ -198,7 +208,7 @@ int getClock()
 }
 
 int checkEnergy(){
-    pthread_mutex_lock(&clockLMut);
+    pthread_mutex_lock(&energyMut); // było clockLMut czemu?
     int result;
     if( E == 0){ //pusta
         result =  1;
@@ -207,7 +217,7 @@ int checkEnergy(){
     } else { // niepusta i niepelna
         result = 2;
     }
-    pthread_mutex_unlock(&clockLMut);
+    pthread_mutex_unlock(&energyMut);
     return result;
 }
 
