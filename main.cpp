@@ -178,7 +178,7 @@ void changeE(packet_t * pkt)
     debug("Uzupelnilem energie do %d",E);
     if(checkEnergy()== 0){ //energia pelna
         debug("ENERGIA PELNA");
-        sendPacketToAll(&pakiet, UZUPELNIONO);
+        sendPacketToAll(pkt, UZUPELNIONO);
 
         // isFilled = TRUE;
     }
