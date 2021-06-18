@@ -34,8 +34,8 @@ pthread_mutex_t ackMut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t waitQueueMut = PTHREAD_MUTEX_INITIALIZER;
 
 
-//std::map<int, bool> acksSent; //rank : true = ack sent, rank : false = ack not sent
-
+std::map<int, bool> acksSent; //rank : true = ack sent, rank : false = ack not sent
+bool isFilled;
 void check_thread_support(int provided)
 {
     printf("THREAD SUPPORT: chcemy %d. Co otrzymamy?\n", provided);
