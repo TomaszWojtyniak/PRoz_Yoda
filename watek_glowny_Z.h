@@ -27,7 +27,7 @@ void mainLoop_Z()
             
 
         } else if (stan == INSECTION_Z){
-            debug("Poziom energi przed uzupełnieniem %d",pakiet.E);
+            debug("Poziom energi przed uzupełnieniem %d",E);
            
             changeE(&pakiet);
             
