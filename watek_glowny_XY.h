@@ -23,7 +23,7 @@ void mainLoop_XY()
 
 
         } else if (stan == WAIT_XY){
-            if(areAcksSent()){
+            if(areAllAcksSent())){
                 pthread_mutex_lock(&ackMut);
 
                 pthread_mutex_lock(&waitQueueMut);
