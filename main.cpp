@@ -267,7 +267,8 @@ void sendPacketToAllAndAddMeToSectionQueue(packet_t* pkt, int tag){
 
     for (int i =0;i<size;i++){
         if(i != rank){
-            MPI_SEND(pkt, 1, MPI_PAKIET_T,i,tag,MPI_COMM_WORLD);
+            MPI_Send(pkt, 1, MPI_PAKIET_T,i,tag,MPI_COMM_WORLD);
+            
         }
     }
     pthread_mutex_unlock(&clockLMut);
