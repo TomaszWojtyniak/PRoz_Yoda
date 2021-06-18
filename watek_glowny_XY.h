@@ -9,7 +9,7 @@ void mainLoop_XY()
         if(stan == REST_XY){
             // debug("jestem w restXY");
             // changeState(PAIRED_XY);
-            debug("Ile jest energii %d", checkEnergy());
+            debug("Ile jest energii %d", E);
             sleep(SLEEP_TIME);
 
         } else if (stan == PAIRED_XY){
