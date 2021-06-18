@@ -14,29 +14,31 @@ void* startKomWatek_XY(void* ptr){
             break;
 
             case ZWIEKSZAM:
-            pthread_mutex_lock(&energyMut);
-            recv.E += 1;
-            pthread_mutex_unlock(&energyMut);
+                pthread_mutex_lock(&energyMut);
+                recv.E += 1;
+                pthread_mutex_unlock(&energyMut);
             break;
 
             case ZMNIEJSZAM:
-            pthread_mutex_lock(&energyMut);
-            recv.E -= 1;
-            pthread_mutex_unlock(&energyMut);
+                pthread_mutex_lock(&energyMut);
+                recv.E -= 1;
+                pthread_mutex_unlock(&energyMut);
+            break;
 
             case DO_SEKCJI:
-            pthread_mutex_lock(&waitQueueMut);
-            waitQueue.insert(recv.src, recv.zegar, waitQueue.getFirst());
-            pthread_mutex_unlock(&waitQueueMut);
+                pthread_mutex_lock(&waitQueueMut);
+                waitQueue.insert(recv.src, recv.zegar, waitQueue.getFirst());
+                pthread_mutex_unlock(&waitQueueMut);
 
-            sendPacket(&send, recv.src, ACK);
+                sendPacket(&send, recv.src, ACK);
             break;
 
             case ACK:
 
-            pthread_mutex_lock(&ackMut);
-            acksSent[recv.src] = true;
-            pthread_mutex_unlock(&ackMut);
+                pthread_mutex_lock(&ackMut);
+                acksSent[recv.src] = true;
+                pthread_mutex_unlock(&ackMut);
+            break;
         }
 
     }
