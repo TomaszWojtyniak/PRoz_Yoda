@@ -67,6 +67,7 @@ int main(int argc, char **argv)
 
     inicjuj(&argc,&argv); 
     if(which == 0){
+        debug("ENERGIA %d", E);
         mainLoop_Z();
 
     } 
