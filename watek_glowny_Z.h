@@ -29,20 +29,22 @@ void mainLoop_Z()
         } else if (stan == INSECTION_Z){
             debug("Poziom energi przed uzupełnieniem %d",pakiet.E);
            
-
+            pthread_mutex_lock( &energyMut );
             changeE(&pakiet);
             
             
             debug("Uzupelnilem energie do %d",E);
             if(checkEnergy()== 0){ //energia pelna
+                debug("ENERGIA PELNA");
                 sendPacketToAll(&pakiet, UZUPELNIONO);
+
                 // isFilled = TRUE;
             }
             else{
                 isFilled = FALSE;
             }
 
-            
+            pthread_mutex_unlock( &energyMut );
 
             changeState(REST_Z);
 
