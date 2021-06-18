@@ -172,10 +172,17 @@ void changeE(packet_t * pkt)
     E += 1;
     pkt->E = E;
     debug("Ile jest energi change E %d", pkt->E);
-    sendPacketToAll(pkt, ZWIEKSZAM);
+   
 
 
     debug("Uzupelnilem energie do %d",E);
+    
+
+
+    pthread_mutex_unlock( &energyMut );
+
+    sendPacketToAll(pkt, ZWIEKSZAM);
+
     if(checkEnergy()== 0){ //energia pelna
         debug("ENERGIA PELNA");
         sendPacketToAll(pkt, UZUPELNIONO);
@@ -185,9 +192,6 @@ void changeE(packet_t * pkt)
     else{
         isFilled = FALSE;
     }
-
-
-    pthread_mutex_unlock( &energyMut );
 }
 
 

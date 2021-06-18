@@ -6,6 +6,8 @@ void mainLoop_Z()
 
     while (TRUE) {
         if(stan == REST_Z){
+            debug("ILE MAM ENERGI PO WSZYSTKIM pakiet %d  E %d", pakiet.E, E);
+            sleep(SLEEP_TIME);
             ;
         }
         else if(stan == WAIT_Z){
