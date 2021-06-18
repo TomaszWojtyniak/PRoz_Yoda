@@ -17,7 +17,7 @@ int pairCounter;
 int para;
 int which; //jaka klasa
 int E; //ilosc energii
-
+int isFilled;
 
 
 
@@ -164,21 +164,21 @@ void changeE(packet_t * pkt)
 {
 
     increaseClock(1);
-    pthread_mutex_lock( &stateMut );
+    pthread_mutex_lock( &energyMut );
     pkt->E += 1;
     sendPacketToAll(pkt, ZWIEKSZAM);
 
-    pthread_mutex_unlock( &stateMut );
+    pthread_mutex_unlock( &energyMut );
 }
 
 
 void decreaseE(packet_t * pkt){
     increaseClock(1);
-    pthread_mutex_lock( &stateMut );
+    pthread_mutex_lock( &energyMut );
     pkt->E -= 1;
     sendPacketToAll(pkt, ZMNIEJSZAM);
 
-    pthread_mutex_unlock( &stateMut );
+    pthread_mutex_unlock( &energyMut );
 }
 
 

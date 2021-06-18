@@ -46,7 +46,7 @@ void mainLoop_XY()
 
 
 
-            debug("Wchodze do sekcji krytycznej");
+            debug("Wchodze do sekcji");
 
             pthread_mutex_lock(&energyMut);
             debug("Poziom energi przed zabraniem %d",pakiet.E);

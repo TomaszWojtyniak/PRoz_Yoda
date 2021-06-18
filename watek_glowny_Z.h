@@ -29,10 +29,11 @@ void mainLoop_Z()
             
 
         } else if (stan == INSECTION_Z){
-            pthread_mutex_lock( &stateMut);
             debug("Poziom energi przed uzupełnieniem %d",pakiet.E);
+           
 
             changeE(&pakiet);
+            
             
             debug("Uzupelnilem energie do %d",pakiet.E);
             if(checkEnergy()== 0){ //energia pelna
@@ -44,7 +45,8 @@ void mainLoop_Z()
             }
 
             
-            
+            pthread_mutex_lock( &stateMut);
+
             changeState(REST_Z);
             pthread_mutex_unlock( &stateMut);
 
