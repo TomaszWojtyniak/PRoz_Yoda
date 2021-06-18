@@ -242,9 +242,11 @@ int getClock()
 int checkEnergy(){
     pthread_mutex_lock(&energyMut); // było clockLMut czemu?
     int result;
+
+    
     if( E == 0){ //pusta
         result =  1;
-    } else if(E == size / 3){ //pelna
+    } else if(E == (size / 3)+1){ //pelna
         result =  0;
     } else { // niepusta i niepelna
         result = 2;
