@@ -167,6 +167,7 @@ void changeE(packet_t * pkt)
     debug("Jestem w change E")
     increaseClock(1);
     pthread_mutex_lock( &energyMut );
+    debug("Ile jest energi change E %d", pkt->E);
     pkt->E += 1;
     sendPacketToAll(pkt, ZWIEKSZAM);
 

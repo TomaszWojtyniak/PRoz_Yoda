@@ -25,10 +25,10 @@ void* startKomWatek_Z(void* ptr){
 
             case ZWIEKSZAM:
                 pthread_mutex_lock(&energyMut);
-                debug("Dostałem komunikat o zwiekszeniu energii, aktualizje swoją lokalna zmienna %d",recv.E);
+                debug("Dostałem komunikat o zwiekszeniu energii, aktualizje swoją lokalna zmienna recv.E %d  E %d",recv.E, E);
 
                 recv.E += 1;
-                debug("Energia po zwiekszeniu %d",recv.E);
+                debug("Energia po zwiekszeniu recv.E %d  E %d",recv.E, E);
 
                 pthread_mutex_unlock(&energyMut);
             break;
