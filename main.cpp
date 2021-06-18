@@ -124,7 +124,7 @@ void inicjuj(int *argc, char ***argv){
         pthread_create( &threadKom, NULL, startKomWatek_Z , 0);
     }
 
-    } else {
+     else {
         changeState(REST_XY);
         pthread_create( &threadKom, NULL, startKomWatek_XY , 0);
     }
