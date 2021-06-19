@@ -42,7 +42,7 @@ void mainLoop_XY()
                 pthread_mutex_unlock(&ackMut);
                 changeState(INSECTION_XY);
             }
-            debug("jestem w wait_xy i czekam na ack");
+            //debug("jestem w wait_xy i czekam na ack");
             sleep(SLEEP_TIME);
 
         } else if (stan == INSECTION_XY){
@@ -51,20 +51,16 @@ void mainLoop_XY()
 
             debug("Wchodze do sekcji");
 
-            pthread_mutex_lock(&energyMut);
-            debug("Poziom energi przed zabraniem %d",pakiet.E);
+            
+            debug("Poziom energi przed zabraniem %d",E);
 
             decreaseE(&pakiet);
 
-            if(checkEnergy() == 1){
-                debug("energia pusta");
-                sendPacketToAll(&pakiet, BRAK_ENERGI);
-            }
+            debug("Obniżam energie do %d",E);
+            
 
-            debug("Obniżam energie do %d",pakiet.E);
-            pthread_mutex_unlock(&energyMut);
-
-            sendPacketToAll(&pakiet, WYCHODZE_XY);
+            //sendPacketToAll(&pakiet, WYCHODZE_XY);
+            changeState(REST_XY);
 
         }
 

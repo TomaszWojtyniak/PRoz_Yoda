@@ -4,43 +4,33 @@ void mainLoop_Z()
 {
     packet_t pakiet;
 
-    while (TRUE) {
-        if(stan == REST_Z){
+    while (TRUE)
+    {
+        if (stan == REST_Z)
+        {
             debug("ILE MAM ENERGI PO WSZYSTKIM pakiet %d  E %d", E);
             sleep(SLEEP_TIME);
-            
         }
-        else if(stan == WAIT_Z){
+        else if (stan == WAIT_Z)
+        {
 
-            debug("Jestem w WAIT_Z, Sprawdzam energie %d", checkEnergy());
+            //debug("Jestem w WAIT_Z, Sprawdzam energie %d i isFilled %d", checkEnergy(), isFilled);
 
-            if(checkEnergy() != 0 && isFilled == TRUE){ //energia nie pelna
-                
-                
-                
-                
-                debug("energia pusta, wchodze do sekcji");
+            if (checkEnergy() != 0 && isFilled == TRUE)
+            { //energia nie pelna
 
+                debug("energia nie pelna, wchodze do sekcji");
 
                 changeState(INSECTION_Z);
             }
-        
+        }
+        else if (stan == INSECTION_Z)
+        {
+            debug("Poziom energi przed uzupełnieniem %d", E);
 
-            
-
-        } else if (stan == INSECTION_Z){
-            debug("Poziom energi przed uzupełnieniem %d",E);
-           
             changeE(&pakiet);
-            
-            
-            
-
 
             changeState(REST_Z);
-
         }
-
     }
-    
 }

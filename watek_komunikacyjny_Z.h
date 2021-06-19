@@ -18,9 +18,9 @@ void* startKomWatek_Z(void* ptr){
             case BRAK_ENERGI:
                 recv.isFilled = TRUE;
                 debug("Dostałem komunikat o braku energi, wchodze w stan WAIT");
-                pthread_mutex_lock(&stateMut);
+                
                 changeState(WAIT_Z);
-                pthread_mutex_unlock(&stateMut);
+                
             break;
 
             case ZWIEKSZAM:
@@ -31,6 +31,19 @@ void* startKomWatek_Z(void* ptr){
                 debug("Energia po zwiekszeniu recv.E %d  E %d",recv.E, E);
 
                 pthread_mutex_unlock(&energyMut);
+
+                if(checkEnergy()== 0){ //energia pelna
+                    debug("ENERGIA PELNA");
+                    sendPacketToAll(&recv, UZUPELNIONO);
+
+                    // isFilled = TRUE;
+                }
+                else{
+                    isFilled = FALSE;
+                }
+
+
+
             break;
 
             case ZMNIEJSZAM:
@@ -43,6 +56,8 @@ void* startKomWatek_Z(void* ptr){
 
                 pthread_mutex_unlock(&energyMut);
             break;
+
+
         }
 
     }
