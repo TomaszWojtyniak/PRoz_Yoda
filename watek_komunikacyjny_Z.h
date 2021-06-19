@@ -12,12 +12,12 @@ void* startKomWatek_Z(void* ptr){
             case UZUPELNIONO:
             isFilled = TRUE;
             //prawdobodnie zmiana stanu
-            debug("Dostałem komunikat o uzupełnieniu");
+            debug("[Z] Dostałem komunikat o uzupełnieniu");
             break;
 
             case BRAK_ENERGI:
             
-                debug("Dostałem komunikat o braku energi, wchodze w stan WAIT");
+                debug("[Z]Dostałem komunikat o braku energi, wchodze w stan WAIT");
                 
                 changeState(WAIT_Z);
                 
@@ -25,19 +25,21 @@ void* startKomWatek_Z(void* ptr){
 
             case ZWIEKSZAM:
                 pthread_mutex_lock(&energyMut);
-                debug("Dostałem komunikat o zwiekszeniu energii, aktualizje swoją lokalna zmienna  E %d", E);
+                debug("[Z]Dostałem komunikat o zwiekszeniu energii, aktualizje swoją lokalna zmienna  E =  %d", E);
 
                 E += 1;
-                debug("Energia po zwiekszeniu recv.E %d  E %d",recv.E, E);
+                debug("[Z]Energia po zwiekszeniu recv.E = %d  E = %d",recv.E, E);
+
 
                 pthread_mutex_unlock(&energyMut);
+                debug("[Z] Ile energi max = %d, checkEnergy() = %d", size/3,checkEnergy());
 
-                if(checkEnergy()== 0){ //energia pelna
-                    debug("ENERGIA PELNA");
-                    sendPacketToAll(&recv, UZUPELNIONO);
+                // if(checkEnergy()== 0){ //energia pelna
+                //     debug("[Z]ENERGIA PELNA");
+                //     sendPacketToAll(&recv, UZUPELNIONO);
 
                 
-                }
+                // }
                 
 
 
@@ -45,10 +47,14 @@ void* startKomWatek_Z(void* ptr){
             break;
 
             case ZMNIEJSZAM:
+
+                debug("[Z]Dostałem komunikat o zmniejszeniu energii, aktualizje swoją lokalna zmienna  E = %d", E);
+
                 pthread_mutex_lock(&energyMut);
 
                 E -= 1;
 
+                debug("[Z]Energia po zmniejszeniu recv.E = %d  E = %d",recv.E, E);
 
                 pthread_mutex_unlock(&energyMut);
 

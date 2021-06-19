@@ -66,11 +66,13 @@ int main(int argc, char **argv)
     inicjuj(&argc, &argv);
     if (which == 0)
     {
-        debug("ENERGIA %d", E);
+        debug("[Z]ENERGIA %d", E);
         mainLoop_Z();
     }
     else
     {
+        
+        debug("[XY]ENERGIA %d", E);
         mainLoop_XY();
     }
     finalizuj();
@@ -155,23 +157,23 @@ void changeState(state_t newState)
 
 void changeE(packet_t *pkt)
 {
-    debug("Jestem w change E")
-        increaseClock(1);
+    // debug("[Z] Jestem w change E")
+    increaseClock(1);
     pthread_mutex_lock(&energyMut);
 
     E += 1;
     pkt->E = E;
-    debug("Ile jest energi change E %d", pkt->E);
+    // debug("[Z]Ile jest energi change E %d", pkt->E);
 
-    debug("Uzupelnilem energie do %d", E);
+    // debug("[Z]Uzupelnilem energie do %d", E);
 
     pthread_mutex_unlock(&energyMut);
 
     sendPacketToAll(pkt, ZWIEKSZAM);
-
+    debug("[Z] jestem w changeE i sprawdzam czy jest full energi E = %d i checkEnergy() = %d", E, checkEnergy());
     if (checkEnergy() == 0)
     { //energia pelna
-        debug("ENERGIA PELNA");
+        debug("[Z] ENERGIA PELNA");
         sendPacketToAll(pkt, UZUPELNIONO);
 
         // isFilled = TRUE;
@@ -184,22 +186,22 @@ void changeE(packet_t *pkt)
 
 void decreaseE(packet_t *pkt)
 {
-    debug("Jestem w decrease E")
+    // debug("[XY]Jestem w decrease E")
     increaseClock(1);
     pthread_mutex_lock(&energyMut);
 
     E -= 1;
     pkt->E = E;
-    debug("Ile jest energi decrease E %d", pkt->E);
+    // debug("[XY]Ile jest energi decrease E %d", pkt->E);
 
-    debug("Zmniejszam energie do %d", E);
+    // debug("[XY]Zmniejszam energie do %d", E);
 
     pthread_mutex_unlock(&energyMut);
 
-
+    debug("[XY] Sprawdzam czy energia jest pełna E = %d, checkEnergy() = %d", E, checkEnergy());
     if (checkEnergy() == 1)
     { //energia pelna
-        debug("ENERGIA PUSTA");
+        debug("[XY]ENERGIA PUSTA");
         sendPacketToAll(pkt, BRAK_ENERGI);
 
         // isFilled = TRUE;
@@ -250,19 +252,37 @@ int checkEnergy()
 {
     pthread_mutex_lock(&energyMut); // było clockLMut czemu?
     int result;
+    // debug("RESULT = %d E = %d", result, E);
+    
 
     if (E == 0)
     { //pusta
         result = 1;
     }
-    else if (E == (size / 3) + 1)
-    { //pelna
-        result = 0;
+    else if((size%3) == 0){
+
+        if (E == (size / 3))
+        { //pelna
+            result = 0;
+        }
+        else
+        { // niepusta i niepelna
+            result = 2;
+        }
+
     }
-    else
-    { // niepusta i niepelna
-        result = 2;
+    else if((size%3) != 0){
+        if (E == ((size / 3) + 1))
+        { //pelna
+            result = 0;
+        }
+        else
+        { // niepusta i niepelna
+            result = 2;
+        }
     }
+    
+    
     pthread_mutex_unlock(&energyMut);
     return result;
 }
@@ -298,26 +318,26 @@ void recvPacket(packet_t &pkt, MPI_Status &status)
     setClock(pkt.zegar + 1);
 }
 
-void sendPacketToAllAndAddMeToSectionQueue(packet_t *pkt, int tag)
-{
-    increaseClock(1);
-    pthread_mutex_lock(&clockLMut);
-    pkt->zegar = zegar;
-    pkt->src = rank;
+// void sendPacketToAllAndAddMeToSectionQueue(packet_t *pkt, int tag)
+// {
+//     increaseClock(1);
+//     pthread_mutex_lock(&clockLMut);
+//     pkt->zegar = zegar;
+//     pkt->src = rank;
 
-    pthread_mutex_lock(&waitQueueMut);
-    waitQueue.insert(rank, zegar, waitQueue.getFirst());
-    pthread_mutex_unlock(&waitQueueMut);
+//     pthread_mutex_lock(&waitQueueMut);
+//     waitQueue.insert(rank, zegar, waitQueue.getFirst());
+//     pthread_mutex_unlock(&waitQueueMut);
 
-    for (int i = 0; i < size; i++)
-    {
-        if (i != rank)
-        {
-            MPI_Send(pkt, 1, MPI_PAKIET_T, i, tag, MPI_COMM_WORLD);
-        }
-    }
-    pthread_mutex_unlock(&clockLMut);
-}
+//     for (int i = 0; i < size; i++)
+//     {
+//         if (i != rank)
+//         {
+//             MPI_Send(pkt, 1, MPI_PAKIET_T, i, tag, MPI_COMM_WORLD);
+//         }
+//     }
+//     pthread_mutex_unlock(&clockLMut);
+// }
 
 bool areAllAcksSent()
 {
