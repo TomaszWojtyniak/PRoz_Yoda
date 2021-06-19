@@ -6,7 +6,7 @@ FLAGS=-DDEBUG -g
 all: main
 
 main: $(SOURCES) $(HEADERS)
-	mpic++ $(SOURCES) $(FLAGS) -o main
+	mpic++ $(SOURCES) $(FLAGS) -o main -lpthread
 
 clean:
 	rm main

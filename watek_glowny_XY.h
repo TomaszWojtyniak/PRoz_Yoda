@@ -43,6 +43,7 @@ void mainLoop_XY()
                 changeState(INSECTION_XY);
             }
             debug("jestem w wait_xy i czekam na ack");
+            sleep(SLEEP_TIME);
 
         } else if (stan == INSECTION_XY){
 
