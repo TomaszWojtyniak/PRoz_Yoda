@@ -18,6 +18,7 @@ int para;
 int which; //jaka klasa
 int E;     //ilosc energii
 int isFilled;
+int src;
 
 MPI_Datatype MPI_PAKIET_T;
 pthread_t threadKom;
@@ -107,6 +108,7 @@ void inicjuj(int *argc, char ***argv)
     zegar = 0;
     E = 0;
     which = rank % 3;
+    src = rank;
     isFilled = TRUE;
     debug("Mam przydzielona role %d i zmieniam stan na REST", which);
     if (which == 0)
@@ -182,21 +184,32 @@ void changeE(packet_t *pkt)
 
 void decreaseE(packet_t *pkt)
 {
+    debug("Jestem w decrease E")
     increaseClock(1);
     pthread_mutex_lock(&energyMut);
+
     E -= 1;
     pkt->E = E;
     debug("Ile jest energi decrease E %d", pkt->E);
 
+    debug("Zmniejszam energie do %d", E);
+
     pthread_mutex_unlock(&energyMut);
 
-    sendPacketToAll(pkt, ZMNIEJSZAM);
 
     if (checkEnergy() == 1)
     { //energia pelna
         debug("ENERGIA PUSTA");
         sendPacketToAll(pkt, BRAK_ENERGI);
+
+        // isFilled = TRUE;
     }
+    else
+    {
+        isFilled = FALSE;
+    }
+
+    sendPacketToAll(pkt, ZMNIEJSZAM);
 }
 
 void sendPacket(packet_t *pkt, int destination, int tag)

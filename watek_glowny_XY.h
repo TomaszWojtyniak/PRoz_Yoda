@@ -8,7 +8,7 @@ void mainLoop_XY()
     while (TRUE) {
         if(stan == REST_XY){
 
-            debug("Ile jest energii %d", E);
+            //debug("Ile jest energii %d", E);
             sleep(SLEEP_TIME);
 
         } else if (stan == PAIRED_XY){
@@ -19,7 +19,7 @@ void mainLoop_XY()
                 }
             }
             pthread_mutex_unlock(&ackMut);
-            debug("jestem w PAIRED)XY i wysylam req do sekcji");
+            debug("jestem w PAIRED)XY i wysylam req do sekcji i dodaje sie do kolejki");
             sendPacketToAllAndAddMeToSectionQueue(&pakiet, DO_SEKCJI );
             
             changeState(WAIT_XY);
@@ -31,7 +31,13 @@ void mainLoop_XY()
                 debug("jestem w WAIT_XY i dostalem wszystkie ack");
 
                 pthread_mutex_lock(&waitQueueMut);
-                waitQueue.remove(rank,waitQueue.getFirst());
+            	std::vector<Data> better;
+            	waitQueue.getBetterVector(rank, better, waitQueue.getFirst());
+            	printf("ALL PROCESSES ABOVE PROCESS WITH ID %d:\n", rank);
+            	for (int i = 0; i < better.size(); i++)
+            	{
+            		printf("id=%d, prio=%d\n", better[i].id, better[i].priority);
+            	}
                 pthread_mutex_unlock(&waitQueueMut);
                 sleep(SLEEP_TIME);
                 for (int i=0; i< size;i++){
@@ -40,7 +46,11 @@ void mainLoop_XY()
                     }
                 }
                 pthread_mutex_unlock(&ackMut);
-                changeState(INSECTION_XY);
+                if(checkEnergy() != 1 && better.size() == 0){
+                    debug("Wchodze do sekcji");
+                    changeState(INSECTION_XY);
+                }
+                //changeState(INSECTION_XY);
             }
             //debug("jestem w wait_xy i czekam na ack");
             sleep(SLEEP_TIME);
@@ -49,7 +59,7 @@ void mainLoop_XY()
 
 
 
-            debug("Wchodze do sekcji");
+            
 
             
             debug("Poziom energi przed zabraniem %d",E);
@@ -58,8 +68,11 @@ void mainLoop_XY()
 
             debug("Obniżam energie do %d",E);
             
+            pthread_mutex_lock(&waitQueueMut);
+            waitQueue.remove(rank, waitQueue.getFirst());
 
-            //sendPacketToAll(&pakiet, WYCHODZE_XY);
+            pthread_mutex_unlock(&waitQueueMut);
+            sendPacketToAll(&pakiet, WYCHODZE_XY);
             changeState(REST_XY);
 
         }

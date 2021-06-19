@@ -10,13 +10,13 @@ void* startKomWatek_Z(void* ptr){
 
         switch(status.MPI_TAG){
             case UZUPELNIONO:
-                // recv. = TRUE;
+            isFilled = TRUE;
             //prawdobodnie zmiana stanu
             debug("Dostałem komunikat o uzupełnieniu");
             break;
 
             case BRAK_ENERGI:
-                recv.isFilled = TRUE;
+            
                 debug("Dostałem komunikat o braku energi, wchodze w stan WAIT");
                 
                 changeState(WAIT_Z);
@@ -36,11 +36,9 @@ void* startKomWatek_Z(void* ptr){
                     debug("ENERGIA PELNA");
                     sendPacketToAll(&recv, UZUPELNIONO);
 
-                    // isFilled = TRUE;
+                
                 }
-                else{
-                    isFilled = FALSE;
-                }
+                
 
 
 
@@ -48,13 +46,13 @@ void* startKomWatek_Z(void* ptr){
 
             case ZMNIEJSZAM:
                 pthread_mutex_lock(&energyMut);
-                debug("Dostałem komunikat o zmniejszeniu energii, aktualizje swoją lokalna zmienna %d",recv.E);
 
                 E -= 1;
 
-                debug("Energia po zmniejszeniu %d",recv.E);
 
                 pthread_mutex_unlock(&energyMut);
+
+                
             break;
 
 

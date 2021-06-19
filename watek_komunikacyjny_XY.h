@@ -21,11 +21,24 @@ void* startKomWatek_XY(void* ptr){
 
             case ZMNIEJSZAM:
                 pthread_mutex_lock(&energyMut);
+                debug("Dostałem komunikat o zmniejszeniu energii, aktualizje swoją lokalna zmienna  E %d", E);
+
                 E -= 1;
+                debug("Energia po zmniejszeniu recv.E %d  E %d",recv.E, E);
+
                 pthread_mutex_unlock(&energyMut);
+
+                if(checkEnergy()== 1){ //energia pusta
+                    debug("ENERGIA PUSTA");
+                    sendPacketToAll(&recv, BRAK_ENERGI);
+
+                    // isFilled = TRUE;
+                }
+                
             break;
 
             case DO_SEKCJI:
+                //debug("DOKOLEJKI");
                 pthread_mutex_lock(&waitQueueMut);
                 waitQueue.insert(recv.src, recv.zegar, waitQueue.getFirst());
                 pthread_mutex_unlock(&waitQueueMut);
@@ -47,7 +60,13 @@ void* startKomWatek_XY(void* ptr){
                 waitQueue.remove(recv.src, waitQueue.getFirst());
                 pthread_mutex_unlock(&waitQueueMut);
             break;
-        }
 
+            case BRAK_ENERGI:
+                changeState(REST_XY);
+            break;
+
+
+
+        }
     }
 }

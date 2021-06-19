@@ -14,8 +14,8 @@ void mainLoop_Z()
         else if (stan == WAIT_Z)
         {
 
-            //debug("Jestem w WAIT_Z, Sprawdzam energie %d i isFilled %d", checkEnergy(), isFilled);
-
+            debug("Jestem w WAIT_Z, Sprawdzam energie %d i isFilled %d", checkEnergy(), isFilled);
+            sleep(SLEEP_TIME);
             if (checkEnergy() != 0 && isFilled == TRUE)
             { //energia nie pelna
 
