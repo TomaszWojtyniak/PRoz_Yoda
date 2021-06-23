@@ -74,10 +74,10 @@ void mainLoop_XY()
 
             debug("[XY] Poziom energi po zabraniu %d",E);
             
-            pthread_mutex_lock(&waitQueueMut);
+            //pthread_mutex_lock(&waitQueueMut);
             waitQueue.remove(rank, waitQueue.getFirst());
 
-            pthread_mutex_unlock(&waitQueueMut);
+            //pthread_mutex_unlock(&waitQueueMut);
             sendPacketToAll(&pakiet, WYCHODZE_XY);
             changeState(REST_XY);
 
